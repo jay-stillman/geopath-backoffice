@@ -1,0 +1,92 @@
+datasource mongo {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  accountManager                      Entity[] @relation(name: "accountManager")
+  createdAt                           DateTime @default(now())
+  entityAccountContact                Entity[] @relation(name: "EntityEntityAccountContactUserEntityAccountContact")
+  entityBillingContact                Entity[] @relation(name: "EntityEntityBillingContactUserEntityBillingContact")
+  firstName                           String?
+  id                                  String   @id @default(auto()) @map("_id") @mongo.ObjectId
+  isBoardMember                       Boolean?
+  isFuturesCouncilMember              Boolean?
+  lastName                            String?
+  marketingAllowed                    Boolean?
+  mobileNumber                        Int?     @unique
+  password                            String
+  phoneNumber                         Int?
+  platformReleaseNotificationsAllowed Boolean?
+  platformStatusNotificationsAllowed  Boolean?
+  roles                               Json
+  updatedAt                           DateTime @updatedAt
+  username                            String   @unique
+}
+
+model Entity {
+  accountOwner               User                   @relation(name: "accountManager", fields: [accountOwnerId], references: [id])
+  accountOwnerId             String
+  childEntities              Entity[]               @relation(name: "childEntities")
+  createdAt                  DateTime               @default(now())
+  entityAccountContact       User                   @relation(name: "EntityEntityAccountContactUserEntityAccountContact", fields: [entityAccountContactId], references: [id])
+  entityAccountContactId     String
+  entityAccountsPayableEmail String?
+  entityBillingContact       User?                  @relation(name: "EntityEntityBillingContactUserEntityBillingContact", fields: [entityBillingContactId], references: [id])
+  entityBillingContactId     String?
+  entityName                 String?                @unique
+  entityStatus               EnumEntityEntityStatus
+  entityType                 EnumEntityEntityType
+  entityWebsite              String?
+  id                         String                 @id @default(auto()) @map("_id") @mongo.ObjectId
+  parentEntity               Entity?                @relation(name: "childEntities", fields: [parentEntityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentEntityId             String?                @mongo.ObjectId
+  remoteAccountingId         String?                @unique
+  updatedAt                  DateTime               @updatedAt
+}
+
+model Address {
+  addressCity     String?
+  addressFax      Int?
+  addressGeopoint String?
+  addressLine_1   String?
+  addressLine_2   String?
+  addressPhone    Int?
+  addressState    String?
+  addressStatus   EnumAddressAddressStatus?
+  addressType     EnumAddressAddressType
+  addressZipcode  String?
+  createdAt       DateTime                  @default(now())
+  id              String                    @id @default(auto()) @map("_id") @mongo.ObjectId
+  updatedAt       DateTime                  @updatedAt
+}
+
+enum EnumEntityEntityStatus {
+  Active
+  Suspended
+  Disabled
+  Lead
+}
+
+enum EnumEntityEntityType {
+  GeopathVendor
+  GeopathPartner
+  MemberMediaOperator
+  MemberAgency
+  GeopathInternal
+}
+
+enum EnumAddressAddressStatus {
+  Active
+  Disabled
+}
+
+enum EnumAddressAddressType {
+  HeadOffice
+  Billing
+  FieldOffice
+}
